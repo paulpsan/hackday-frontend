@@ -63,7 +63,7 @@ export class HorariosComponent implements OnInit {
         this.horarios = data;
       },
       err => {
-        console.log(err)
+        console.log(err);
         this.mensajeError = err.message;
         this.error = true;
         setTimeout(() => {
@@ -102,6 +102,7 @@ export class HorariosComponent implements OnInit {
     console.log(this.semanas);
   }
   adicionar() {
+    this.mostrarLista = false;
     this.cargando = !this.cargando;
     this.objetoEditar = {
       _id: null,
@@ -113,6 +114,7 @@ export class HorariosComponent implements OnInit {
     };
   }
   editar(objeto) {
+    this.mostrarLista = false;
     this.cargando = !this.cargando;
     if (objeto._id) {
       this._httpService.buscarId("horarios", objeto._id).subscribe(
@@ -140,12 +142,13 @@ export class HorariosComponent implements OnInit {
   }
 
   cancelar() {
+    this.mostrarLista = false;
     this.cargando = !this.cargando;
     this.horarioForm.reset();
   }
 
   guardar() {
-    console.log();
+    this.mostrarLista = false;
     let objHorario = {
       _id: null,
       dia: this.horarioForm.controls["dia"].value,
