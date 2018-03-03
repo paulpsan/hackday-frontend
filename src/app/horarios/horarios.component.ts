@@ -12,9 +12,15 @@ import { Subject } from "rxjs/Subject";
 })
 export class HorariosComponent implements OnInit {
   public horarios;
+  public materias;
+  public aulas;
   public objetoEditar;
+  public semanas = [];
+  public mensajeError;
+  public error: Boolean = false;
   public horarioForm: FormGroup;
   public cargando: Boolean = false;
+  public mostrarLista: Boolean = false;
   // dtOptions: DataTables.Settings = {};
   // dtTrigger: Subject<any> = new Subject();
   constructor(
@@ -45,48 +51,94 @@ export class HorariosComponent implements OnInit {
     //   }
     // };
     this.horarioForm = new FormGroup({
-      nombre: new FormControl("", Validators.required),
-      email: new FormControl("")
+      dia: new FormControl("", Validators.required),
+      hora_ini: new FormControl("", Validators.required),
+      hora_fin: new FormControl("", Validators.required),
+      materia: new FormControl("", Validators.required),
+      aula: new FormControl("", Validators.required)
     });
 
-    this._httpService.obtener("horarios").subscribe(data => {
-      this.horarios = data;
-      console.log(data);
-    });
+    this._httpService.obtener("horarios").subscribe(
+      data => {
+        this.horarios = data;
+      },
+      err => {
+        console.log(err)
+        this.mensajeError = err.message;
+        this.error = true;
+        setTimeout(() => {
+          this.error = false;
+        }, 2000);
+      }
+    );
+    this._httpService.obtener("aulas").subscribe(
+      data => {
+        this.aulas = data;
+      },
+      err => {
+        this.mensajeError = err.message;
+        this.error = true;
+        setTimeout(() => {
+          this.error = false;
+        }, 2000);
+      }
+    );
+    this._httpService.obtener("materias").subscribe(
+      data => {
+        this.materias = data;
+      },
+      err => {
+        this.mensajeError = err.message;
+        this.error = true;
+        setTimeout(() => {
+          this.error = false;
+        }, 2000);
+      }
+    );
+    //carga semanas
+    for (let i = 1; i <= 52; i++) {
+      this.semanas.push(i);
+    }
+    console.log(this.semanas);
   }
   adicionar() {
     this.cargando = !this.cargando;
     this.objetoEditar = {
       _id: null,
-      nombre: "",
-      email: ""
+      dia: "",
+      hora_ini: "",
+      hora_fin: "",
+      materia: "",
+      aula: ""
     };
   }
   editar(objeto) {
     this.cargando = !this.cargando;
     if (objeto._id) {
-      this._httpService.buscarId("horarios", objeto._id).subscribe(data => {
-        this.objetoEditar = data;
-        console.log(data);
+      this._httpService.buscarId("horarios", objeto._id).subscribe(
+        data => {
+          this.objetoEditar = data;
+          console.log(data);
 
-        this.horarioForm.setValue({
-          nombre: this.objetoEditar.nombre,
-          email: this.objetoEditar.email
-        });
-      });
-
-      this.cargando = !this.cargando;
-      this.horarioForm.setValue({
-        nombre: objeto.nombre,
-        email: objeto.email
-      });
+          this.horarioForm.setValue({
+            dia: this.objetoEditar.dia,
+            hora_ini: this.objetoEditar.hora_ini,
+            hora_fin: this.objetoEditar.hora_fin,
+            materia: this.objetoEditar.fk_materia,
+            aula: this.objetoEditar.fk_aula
+          });
+        },
+        err => {
+          this.mensajeError = err.message;
+          this.error = true;
+          setTimeout(() => {
+            this.error = false;
+          }, 2000);
+        }
+      );
     }
-    this.cargando = !this.cargando;
-    this.horarioForm.setValue({
-      nombre: objeto.nombre,
-      email: objeto.email
-    });
   }
+
   cancelar() {
     this.cargando = !this.cargando;
     this.horarioForm.reset();
@@ -96,19 +148,40 @@ export class HorariosComponent implements OnInit {
     console.log();
     let objHorario = {
       _id: null,
-      nombre: this.horarioForm.controls["nombre"].value,
-      email: this.horarioForm.controls["email"].value
+      dia: this.horarioForm.controls["dia"].value,
+      hora_ini: this.horarioForm.controls["hora_ini"].value,
+      hora_fin: this.horarioForm.controls["hora_fin"].value,
+      fk_materia: this.horarioForm.controls["materia"].value,
+      fk_aula: this.horarioForm.controls["aula"].value
     };
 
     if (this.objetoEditar._id) {
       objHorario._id = this.objetoEditar._id;
-      this._httpService.editar("horarios", objHorario).subscribe(resp => {
-        this.cargarDatos();
-      });
+      this._httpService.editar("horarios", objHorario).subscribe(
+        resp => {
+          this.cargarDatos();
+        },
+        err => {
+          this.mensajeError = err.error.mensaje;
+          this.error = true;
+          setTimeout(() => {
+            this.error = false;
+          }, 2000);
+        }
+      );
     } else {
-      this._httpService.adicionar("horarios", objHorario).subscribe(resp => {
-        this.cargarDatos();
-      });
+      this._httpService.adicionar("horarios", objHorario).subscribe(
+        resp => {
+          this.cargarDatos();
+        },
+        err => {
+          this.mensajeError = err.error.mensaje;
+          this.error = true;
+          setTimeout(() => {
+            this.error = false;
+          }, 2000);
+        }
+      );
     }
     this.cargando = !this.cargando;
     this.objetoEditar = [];
@@ -116,9 +189,22 @@ export class HorariosComponent implements OnInit {
   }
   eliminar(objeto) {
     if (confirm("desea eliminar")) {
-      this._httpService.eliminarId("horarios", objeto._id).subscribe(data => {
-        this.cargarDatos();
-      });
+      this._httpService.eliminarId("horarios", objeto._id).subscribe(
+        data => {
+          this.cargarDatos();
+        },
+        err => {
+          this.mensajeError = err.message;
+          this.error = true;
+          setTimeout(() => {
+            this.error = false;
+          }, 2000);
+        }
+      );
     }
+  }
+
+  listar() {
+    this.mostrarLista = !this.mostrarLista;
   }
 }

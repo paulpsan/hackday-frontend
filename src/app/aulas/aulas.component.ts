@@ -46,7 +46,7 @@ export class AulasComponent implements OnInit {
     // };
     this.aulaForm = new FormGroup({
       nombre: new FormControl("", Validators.required),
-      email: new FormControl("")
+      descripcion: new FormControl("")
     });
 
     this._httpService.obtener("aulas").subscribe(data => {
@@ -59,7 +59,7 @@ export class AulasComponent implements OnInit {
     this.objetoEditar = {
       _id: null,
       nombre: "",
-      email: ""
+      descripcion: ""
     };
   }
   editar(objeto) {
@@ -71,21 +71,11 @@ export class AulasComponent implements OnInit {
 
         this.aulaForm.setValue({
           nombre: this.objetoEditar.nombre,
-          email: this.objetoEditar.email
+          descripcion: this.objetoEditar.descripcion
         });
       });
 
-      this.cargando = !this.cargando;
-      this.aulaForm.setValue({
-        nombre: objeto.nombre,
-        email: objeto.email
-      });
     }
-    this.cargando = !this.cargando;
-    this.aulaForm.setValue({
-      nombre: objeto.nombre,
-      email: objeto.email
-    });
   }
   cancelar() {
     this.cargando = !this.cargando;
@@ -97,7 +87,7 @@ export class AulasComponent implements OnInit {
     let objAula = {
       _id: null,
       nombre: this.aulaForm.controls["nombre"].value,
-      email: this.aulaForm.controls["email"].value
+      descripcion: this.aulaForm.controls["descripcion"].value
     };
 
     if (this.objetoEditar._id) {

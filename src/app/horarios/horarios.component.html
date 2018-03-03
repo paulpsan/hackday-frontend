@@ -1,9 +1,13 @@
 <div class="container">
   <div class="row">
     <div class="col-lg-12">
+      <h3>Lista de Horarios</h3>
       <div class="row">
-        <h3>Lista de Horarios</h3>
-        <div class="col-md-8" style="text-align: center">
+        <div class="col-md-4"></div>
+        <div class="col-md-4" style="text-align: right">
+          <button mat-button (click)="listar()" color="primary">
+            <mat-icon mat-list-icon>list</mat-icon>Lista Semanal
+          </button>
         </div>
         <div class="col-md-4" style="text-align: right">
           <button mat-button (click)="adicionar()" color="primary">
@@ -11,65 +15,132 @@
           </button>
         </div>
       </div>
+      <div *ngIf="error" class="alert alert-danger" role="alert">
+        {{mensajeError}}
+      </div>
+      <div *ngIf="!mostrarLista">
+        <form *ngIf="cargando" novalidate [formGroup]="horarioForm" (ngSubmit)="guardar(data)">
+          <div class="card-body">
+            <!-- <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Dia</label>
+              <div class="col-sm-10">
+                <input class="form-control" type="text" placeholder="Nombre Horario" formControlName="dia">
+              </div>
+            </div> -->
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Dia</label>
+              <div class="col-sm-10">
+                <mat-form-field>
+                  <input class="form-control" matInput [matDatepicker]="picker" formControlName="dia" placeholder="Escoje el dia">
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
 
-      <form *ngIf="cargando" novalidate [formGroup]="horarioForm" (ngSubmit)="guardar(data)">
-        <div class="card-body">
-          <div class="form-group row">
-            <label class="col-sm-2 col-form-label">Nombre</label>
-            <div class="col-sm-10">
-              <input class="form-control" type="text" placeholder="Nombre Horario" formControlName="nombre">
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Hora de Inicio</label>
+              <div class="col-sm-10">
+                <input class="form-control" type="text" placeholder="HH:MM" formControlName="hora_ini">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Hora de Conclusion</label>
+              <div class="col-sm-10">
+                <input class="form-control" type="text" placeholder="HH:MM" formControlName="hora_fin">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Materia</label>
+              <div class="col-sm-10">
+                <select class="form-control" formControlName="materia">
+                  <option selected disabled>--Materia--</option>
+                  <option *ngFor="let materia of materias" [value]="materia._id">{{materia.nombre}}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label">Aula</label>
+              <div class="col-sm-10">
+                <select class="form-control" formControlName="aula">
+                  <option selected disabled>--Aula--</option>
+                  <option *ngFor="let aula of aulas" [value]="aula._id">{{aula.nombre}}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row justify-content-md-center m-1">
+              <button mat-button [disabled]="!horarioForm.valid" type="submit" color="primary">
+                <mat-icon mat-list-icon>done</mat-icon>
+                Guardar
+              </button>
+              <button mat-button (click)="cancelar()" color="warn">
+                <mat-icon mat-list-icon>cancel</mat-icon>
+                Cancelar
+              </button>
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-2 col-form-label">Email</label>
-            <div class="col-sm-10">
-              <input class="form-control" type="text" placeholder="Email" formControlName="email">
-            </div>
-          </div>
-          <div class="row justify-content-md-center m-1">
-            <button mat-button [disabled]="!horarioForm.valid" type="submit" color="primary">
-              <mat-icon mat-list-icon>done</mat-icon>
-              Guardar
-            </button>
-            <button mat-button (click)="cancelar()" color="warn">
-              <mat-icon mat-list-icon>cancel</mat-icon>
-              Cancelar
-            </button>
-          </div>
-        </div>
-      </form>
+        </form>
 
 
 
 
-      <!-- <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="table table-hover table-responsive"> -->
-      <table *ngIf="!cargando" class="table table-hover table-responsive">
-        <thead class="thead-default">
-          <tr>
-            <th>Nro.</th>
-            <th>Nombre</th>
-            <th>Descripcion</th>
-            <th>Accion</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let data of horarios; index as i">
-            <th>{{i+1}}</th>
-            <td>{{data.nombre}}</td>
-            <td>{{data.email}}</td>
-            <td>
-              <button mat-button (click)="editar(data)" color="primary">
-                <i class="fa fa-cogs" aria-hidden="true"></i>
-                <span class="enlaces">Editar</span>
-              </button>
-              <button mat-button (click)="eliminar(data)" color="warn">
-                <i class="fa fa-trash" aria-hidden="true"></i>
-                <span class="enlaces" style="color: red">Eliminar</span>
-              </button>
-            </td>
-          </tr>
+        <!-- <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="table table-hover table-responsive"> -->
+        <table *ngIf="!cargando" class="table table-hover table-responsive">
+          <thead class="thead-default">
+            <tr>
+              <th>Nro.</th>
+              <th>Dia</th>
+              <th>Hora Inicio</th>
+              <th>Hora Fin</th>
+              <th>Materia</th>
+              <th>Aula</th>
+            </tr>
+          </thead>
           <tbody>
-      </table>
+            <tr *ngFor="let data of horarios; index as i">
+              <th>{{i+1}}</th>
+              <td>{{data.dia}}</td>
+              <td>{{data.hora_ini}}</td>
+              <td>{{data.hora_fin}}</td>
+              <td>{{data.Materia.nombre}}</td>
+              <td>{{data.Aula.nombre}}</td>
+              <td>
+                <button mat-button (click)="editar(data)" color="primary">
+                  <i class="fa fa-cogs" aria-hidden="true"></i>
+                  <span class="enlaces">Editar</span>
+                </button>
+                <button mat-button (click)="eliminar(data)" color="warn">
+                  <i class="fa fa-trash" aria-hidden="true"></i>
+                  <span class="enlaces" style="color: red">Eliminar</span>
+                </button>
+              </td>
+            </tr>
+            <tbody>
+        </table>
+      </div>
+      <div *ngIf="mostrarLista">
+        esto es prueba
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Semana</th>
+              <th>Domingo</th>
+              <th>Lunes</th>
+              <th>Martes</th>
+              <th>Miercoles</th>
+              <th>Jueves</th>
+              <th>Viernes</th>
+              <th>Sabado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let data of semanas; index as i">
+              <th>{{i+1}}</th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>

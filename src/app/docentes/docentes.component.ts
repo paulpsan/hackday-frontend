@@ -73,18 +73,7 @@ export class DocentesComponent implements OnInit {
           email: this.objetoEditar.email
         });
       });
-
-      this.cargando = !this.cargando;
-      this.docenteForm.setValue({
-        nombre: objeto.nombre,
-        email: objeto.email
-      });
     }
-    this.cargando = !this.cargando;
-    this.docenteForm.setValue({
-      nombre: objeto.nombre,
-      email: objeto.email
-    });
   }
   cancelar() {
     this.cargando = !this.cargando;

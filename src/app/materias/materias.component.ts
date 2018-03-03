@@ -47,26 +47,26 @@ export class MateriasComponent implements OnInit {
     // };
     this.materiaForm = new FormGroup({
       nombre: new FormControl("", Validators.required),
-      descripcion: new FormControl(""),
-      docenete: new FormControl("")
+      detalle: new FormControl(""),
+      docente: new FormControl("")
     });
 
     this._httpService.obtener("materias").subscribe(data => {
       this.materias = data;
       console.log(data);
     });
-  }
-  adicionar() {
     this._httpService.obtener("docentes").subscribe(data => {
       this.docentes = data;
       console.log(data);
     });
-
+  }
+  adicionar() {
     this.cargando = !this.cargando;
     this.objetoEditar = {
       _id: null,
       nombre: "",
-      email: ""
+      detalle: "",
+      fk_docente: ""
     };
   }
   editar(objeto) {
@@ -78,21 +78,11 @@ export class MateriasComponent implements OnInit {
 
         this.materiaForm.setValue({
           nombre: this.objetoEditar.nombre,
-          email: this.objetoEditar.email
+          detalle: this.objetoEditar.detalle,
+          docente: this.objetoEditar.fk_docente
         });
       });
-
-      this.cargando = !this.cargando;
-      this.materiaForm.setValue({
-        nombre: objeto.nombre,
-        email: objeto.email
-      });
     }
-    this.cargando = !this.cargando;
-    this.materiaForm.setValue({
-      nombre: objeto.nombre,
-      email: objeto.email
-    });
   }
   cancelar() {
     this.cargando = !this.cargando;
@@ -100,13 +90,13 @@ export class MateriasComponent implements OnInit {
   }
 
   guardar() {
-    console.log();
     let objMateria = {
       _id: null,
       nombre: this.materiaForm.controls["nombre"].value,
-      email: this.materiaForm.controls["email"].value
+      detalle: this.materiaForm.controls["detalle"].value,
+      fk_docente: this.materiaForm.controls["docente"].value
     };
-
+    console.log(objMateria);
     if (this.objetoEditar._id) {
       objMateria._id = this.objetoEditar._id;
       this._httpService.editar("materias", objMateria).subscribe(resp => {
